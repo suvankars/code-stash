@@ -8,35 +8,55 @@ import { fetchPlugin } from "./plugins/fetch-plugin";
 const App = () => {
   const ref = useRef<any>();
   const [input, setInput] = useState("");
-  const [code, setCode] = useState("");
-
+  const iframeRef = useRef <any>();
   const onClick = async () => {
     if (!ref.current) {
       return;
     }
 
+    //Reassign Skeleton before each Executions;
+    iframeRef.current.srcdoc=html;
+
     const result = await ref.current.build({
       entryPoints: ["index.js"],
       bundle: true,
       write: false,
-      plugins: [
-        unpkgPathPlugin(),
-        fetchPlugin(input)
-      ],
-      define: { 
-        'process.env.NODE_ENV': '"production"', 
-        global: 'window'
-       }
+      plugins: [unpkgPathPlugin(), fetchPlugin(input)],
+      define: {
+        "process.env.NODE_ENV": '"production"',
+        global: "window",
+      },
     });
 
-    //console.log(result);
-    setCode(result.outputFiles[0].text);
+    //setCode(result.outputFiles[0].text);
+    iframeRef.current.contentWindow.postMessage(result.outputFiles[0].text, '*')
   };
+  
+  const html = `
+  <html>
+    <head></head>
+    <body>
+    <div id="root"></div>
+    <script>
+      window.addEventListener('message', (event)=>{
+        try {
+          eval(event.data)
+        } catch (err){
+          const root=document.querySelector('#root');
+          root.innerHTML='<div style="color : red">' + err + '</div>';
+          throw err;
+        }
+
+      }, false);
+    </script>
+    </body>
+  </html>
+  `;
 
   useEffect(() => {
     startService();
   }, []);
-
+  
   const startService = async () => {
     ref.current = await esbuild.startService({
       worker: true,
@@ -53,7 +73,7 @@ const App = () => {
       <div>
         <button onClick={onClick}>Submit</button>
       </div>
-      <pre>{code}</pre>
+      <iframe ref={iframeRef} title="me" sandbox="allow-scripts" srcDoc={html}></iframe>
     </div>
   );
 };
