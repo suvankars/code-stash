@@ -1,3 +1,4 @@
+import './code-editor.css';
 import {useRef} from 'react';
 import MonacoEditor from "@monaco-editor/react";
 import type {EditorDidMount} from "@monaco-editor/react";
@@ -23,7 +24,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onChange, initialValue }) => {
       semi: true,
       singleQuote: true
 
-    })
+    }).replace(/\n$/, '');
     //set value back in the editor 
     editorRef.current.setValue(formatted);
 
@@ -38,8 +39,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onChange, initialValue }) => {
   };
 
   return (
-    <div>
-      <button onClick={onclickFormat}>Format</button>
+    <div className="editor-wrapper">
+      <button className="button button-format is-primary is-small" onClick={onclickFormat} >Format</button>
     <MonacoEditor
       value={initialValue}
       editorDidMount={onEditorDidMount}
