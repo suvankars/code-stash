@@ -47,7 +47,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onChange, initialValue }) => {
       monacoEditor
     );
     
-    // newer version has a settings to pass delay before compile
+    // TODO: Newer version of monaco editor has a settings to pass delay before compile
+    // No need to pass empty objects
     highlighter.highLightOnDidChangeModelContent(
       ()=>{},
       ()=>{},

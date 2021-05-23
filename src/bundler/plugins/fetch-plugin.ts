@@ -10,6 +10,7 @@ export const fetchPlugin = (inputCode: string) => {
   return {
     name: "fetch-plugin",
     setup(build: esbuild.PluginBuild) {
+      //For root file
       build.onLoad({ filter: /^index\.js$/ }, () => {
         return {
           loader: "jsx",
@@ -17,8 +18,9 @@ export const fetchPlugin = (inputCode: string) => {
         };
       });
 
+      //For other js/css cached files and imports
       build.onLoad({ filter: /.*/ }, async (args: any) => {
-      //Cached data
+        //Cached data
         const cacheData = await filecache.getItem<esbuild.OnLoadResult>(
           args.path
         );
@@ -27,10 +29,8 @@ export const fetchPlugin = (inputCode: string) => {
         }
       });
 
-      //build.onLoad css
+      //build css files
       build.onLoad({ filter: /.css$/ }, async (args: any) => {
-        
-
         // IF not then get it
         const { data, request } = await axios.get(args.path);
 
@@ -39,6 +39,8 @@ export const fetchPlugin = (inputCode: string) => {
           .replace(/\n/g, "")
           .replace(/"/g, '\\"')
           .replace(/'/g, "\\'");
+
+        //Append css to a style  div in document head   
         const contents = `
               const elm = document.createElement('style');
               elm.innerText = '${escaped}'
@@ -57,9 +59,8 @@ export const fetchPlugin = (inputCode: string) => {
         return result;
       });
 
+      //build onLoad js files
       build.onLoad({ filter: /.*$/ }, async (args: any) => {
-       
-        // IF not then get it
         const { data, request } = await axios.get(args.path);
 
         const result: esbuild.OnLoadResult = {
