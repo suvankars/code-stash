@@ -1,12 +1,11 @@
 import './code-editor.css';
-import './syntax.css'
-import { useRef } from "react";
-import MonacoEditor from "@monaco-editor/react";
-import type { EditorDidMount } from "@monaco-editor/react";
-import prettier from "prettier";
-import parser from "prettier/parser-babel"
-import codeShift from "jscodeshift"
-import Highlighter from "monaco-jsx-highlighter";
+import './syntax.css';
+import { useRef } from 'react';
+import MonacoEditor, { EditorDidMount } from '@monaco-editor/react';
+import prettier from 'prettier';
+import parser from 'prettier/parser-babel';
+import codeShift from 'jscodeshift';
+import Highlighter from 'monaco-jsx-highlighter';
 
 interface CodeEditorProps {
   initialValue: string;
@@ -16,28 +15,12 @@ interface CodeEditorProps {
 const CodeEditor: React.FC<CodeEditorProps> = ({ onChange, initialValue }) => {
   const editorRef = useRef<any>();
 
-  const onclickFormat = () => {
-    //get value from editor
-    const unformatted = editorRef.current.getValue();
-    //format
-    const formatted = prettier
-      .format(unformatted, {
-        parser: "babel",
-        plugins: [parser],
-        useTabs: false,
-        semi: true,
-        singleQuote: true,
-      })
-      .replace(/\n$/, "");
-    //set value back in the editor
-    editorRef.current.setValue(formatted);
-  };
-
   const onEditorDidMount: EditorDidMount = (getValue, monacoEditor) => {
     editorRef.current = monacoEditor;
     monacoEditor.onDidChangeModelContent(() => {
       onChange(getValue());
     });
+
     monacoEditor.getModel()?.updateOptions({ tabSize: 2 });
 
     const highlighter = new Highlighter(
@@ -46,39 +29,54 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onChange, initialValue }) => {
       codeShift,
       monacoEditor
     );
-    
-    // TODO: Newer version of monaco editor has a settings to pass delay before compile
-    // No need to pass empty objects
     highlighter.highLightOnDidChangeModelContent(
-      ()=>{},
-      ()=>{},
+      () => {},
+      () => {},
       undefined,
-      ()=>{}
+      () => {}
     );
-    
+  };
+
+  const onFormatClick = () => {
+    // get current value from editor
+    const unformatted = editorRef.current.getModel().getValue();
+
+    // format that value
+    const formatted = prettier
+      .format(unformatted, {
+        parser: 'babel',
+        plugins: [parser],
+        useTabs: false,
+        semi: true,
+        singleQuote: true,
+      })
+      .replace(/\n$/, '');
+
+    // set the formatted value back in the editor
+    editorRef.current.setValue(formatted);
   };
 
   return (
     <div className="editor-wrapper">
       <button
         className="button button-format is-primary is-small"
-        onClick={onclickFormat}
+        onClick={onFormatClick}
       >
         Format
       </button>
       <MonacoEditor
-        value={initialValue}
         editorDidMount={onEditorDidMount}
+        value={initialValue}
         theme="dark"
         language="javascript"
         height="100%"
         options={{
-          wordWrap: "on",
+          wordWrap: 'on',
           minimap: { enabled: false },
           showUnused: false,
           folding: false,
-          fontSize: 16,
           lineNumbersMinChars: 3,
+          fontSize: 16,
           scrollBeyondLastLine: false,
           automaticLayout: true,
         }}
