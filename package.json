@@ -11,6 +11,7 @@
     "@types/jscodeshift": "0.7.2",
     "@types/prettier": "2.2.3",
     "@types/react-resizable": "1.7.2",
+    "@uiw/react-md-editor": "3.3.4",
     "axios": "0.21.1",
     "bulmaswatch": "0.8.1",
     "esbuild-wasm": "0.8.27",
