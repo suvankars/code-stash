@@ -1,10 +1,11 @@
-import MDEditor from "@uiw/react-md-editor";
-import { useState, useEffect, useRef } from "react";
+import './text-editor.css';
+import { useState, useEffect, useRef } from 'react';
+import MDEditor from '@uiw/react-md-editor';
 
 const TextEditor: React.FC = () => {
   const ref = useRef<HTMLDivElement | null>(null);
   const [editing, setEditing] = useState(false);
-  const [content, setContent] = useState('');
+  const [value, setValue] = useState('# Header');
 
   useEffect(() => {
     const listener = (event: MouseEvent) => {
@@ -15,27 +16,29 @@ const TextEditor: React.FC = () => {
       ) {
         return;
       }
-      console.log(event)
+
       setEditing(false);
     };
-    document.addEventListener("click", listener, { capture: true });
+    document.addEventListener('click', listener, { capture: true });
 
     return () => {
-      document.removeEventListener("click", listener, { capture: true });
+      document.removeEventListener('click', listener, { capture: true });
     };
   }, []);
 
   if (editing) {
     return (
-      <div ref={ref}>
-        <MDEditor />
+      <div className="text-editor" ref={ref}>
+        <MDEditor value={value} onChange={(v) => setValue(v || '')} />
       </div>
     );
   }
 
   return (
-    <div onClick={() => setEditing(true)}>
-      <MDEditor.Markdown source="# headder" />
+    <div className="text-editor card" onClick={() => setEditing(true)}>
+      <div className="card-content">
+        <MDEditor.Markdown source={value} />
+      </div>
     </div>
   );
 };
